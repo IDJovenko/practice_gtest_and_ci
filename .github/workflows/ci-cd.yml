@@ -11,7 +11,7 @@ jobs:
         path: [src, test]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: clang-format style check
         uses: jidicula/clang-format-action@v4.18.0
@@ -28,7 +28,7 @@ jobs:
         build_type: [Release, Debug]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake libgtest-dev 
