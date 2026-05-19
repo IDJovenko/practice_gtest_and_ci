@@ -1,0 +1,43 @@
+name: CI Pipeline for C++ Project
+
+on: [push, pull_request]
+
+jobs:
+  format:
+    name: Check code style
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        path: [src, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: clang-format style check
+        uses: jidicula/clang-format-action@v4.18.0
+        with:
+          check-path: ${{ matrix.path }}
+          fallback-style: 'Google' # if .clang-format isn't exist
+        
+  build-and-test:
+    name: Build and Test (${{ matrix.build_type }})
+    needs: format
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake libgtest-dev 
+
+      - name: Configure
+        run: cmake -S . -B build/${{ matrix.build_type }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Build
+        run: cmake --build build/${{ matrix.build_type }} -j 2
+        
+      - name: Run Tests
+        run: ctest --test-dir build/${{ matrix.build_type }} --output-on-failure
